@@ -1,0 +1,9 @@
+[Plugin]
+Loader=python
+Module=indent_keys
+IAge=3
+Name=Indent Key Plugin
+Description=This plugin adds a 'indent' and 'unindent' shortcut
+Authors=Jens Nyman <nymanjens.nj@gmail.com>
+Copyright=Copyright (C) 2010 Jens Nyman
+Website=http://code.google.com/p/gedit-improving-plugins
