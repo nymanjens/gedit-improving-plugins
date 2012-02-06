@@ -333,17 +333,25 @@ class LineToolsWindowHelper:
             start = cursor.copy()
             start.set_line_offset(0)
             end = cursor.copy()
-            end.forward_to_line_end()
+            if not end.ends_line():
+                end.forward_to_line_end()
             line = doc.get_text(start, end, False)
+            # sanity check
+            if len(line) == 0:
+                return
             # get index where text starts
             start_index = 0
-            while line[start_index] in NON_TEXT:
+            while start_index < len(line) and line[start_index] in NON_TEXT:
                 start_index += 1
             # get index where text ends
             end_index = len(line) - 1
             while line[end_index] in NON_TEXT:
                 end_index -= 1
+                if end_index < 0:
+                    return
             # apply indices and select
+            print start_index
+            print end_index
             start.set_line_offset(start_index)
             end.set_line_offset(end_index + 1)
             doc.select_range(start, end)
