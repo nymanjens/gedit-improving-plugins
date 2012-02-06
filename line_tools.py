@@ -25,6 +25,8 @@ ACTIONS_UI = """
                 <menuitem name="DuplicateLine" action="DuplicateLine"/>
                 <menuitem name="SelectLine" action="SelectLine"/>
                 <menuitem name="SelectText" action="SelectText"/>
+                <menuitem name="SelectWord" action="SelectWord"/>
+                <menuitem name="AddSemicolon" action="AddSemicolon"/>
             </placeholder>
         </menu>
     </menubar>
@@ -106,6 +108,22 @@ class LineToolsWindowHelper:
                 "<Control>j", # shortcut
                 "Select _Text", # tooltip
                 self.select_text # callback
+            ),
+            (
+                "SelectWord", # name
+                None, # icon stock id
+                "Select _Word", # label
+                "<Control>m", # shortcut
+                "Select _Word", # tooltip
+                self.select_word # callback
+            ),
+            (
+                "AddSemicolon", # name
+                None, # icon stock id
+                "Add Semicolon", # label
+                "<Control>semicolon", # shortcut
+                "Add Semicolon", # tooltip
+                self.add_semicolon # callback
             ),
         ]
 
@@ -350,11 +368,70 @@ class LineToolsWindowHelper:
                 if end_index < 0:
                     return
             # apply indices and select
-            print start_index
-            print end_index
             start.set_line_offset(start_index)
             end.set_line_offset(end_index + 1)
             doc.select_range(start, end)
+        except:
+            err = "Exception\n"
+            err += traceback.format_exc()
+            doc.set_text(err)
+        
+    ###################### SELECT WORD ######################
+    def select_word(self, action):
+        doc = self._window.get_active_document()
+        if not doc:
+            return
+        try:
+            # settings
+            TEXT = ['_'] # a-zA-Z0-9
+            # help functions
+            def valid_text(start, end):
+                if not start or not end:
+                    return False
+                if start.get_line_offset() > end.get_line_offset():
+                    (start, end) = (end, start) # swap
+                text = doc.get_text(start, end, False)
+                for char in text:
+                    if not re.match("\w", char):
+                        return False
+                return True
+            def increment(index, incr):
+                newindex = index.copy()
+                newindex.set_line_offset(index.get_line_offset() + incr)
+                return newindex
+            def find_word_bound(index, step):
+                condition = lambda x: not index.get_line_offset() == 0 if step < 0 else lambda x: not x.ends_line()
+                while condition(index):
+                    newindex = increment(index, step)
+                    # newindex contains word?
+                    if not valid_text(newindex, index):
+                        break
+                    # save new index
+                    index = newindex
+                return index
+            # get vars
+            cursor = doc.get_iter_at_mark(doc.get_insert())
+            start = find_word_bound(cursor, -1)
+            end = find_word_bound(cursor, +1)
+            # select start->end
+            doc.select_range(start, end)
+        except:
+            err = "Exception\n"
+            err += traceback.format_exc()
+            doc.set_text(err)
+        
+    ###################### ADD SEMICOLON ######################
+    def add_semicolon(self, action):
+        doc = self._window.get_active_document()
+        if not doc:
+            return
+        try:
+            # get vars
+            cursor = doc.get_iter_at_mark(doc.get_insert())
+            if not cursor.ends_line():
+                cursor.forward_to_line_end()
+            # select start->end
+            cursor.get_buffer().insert(cursor, ';')
         except:
             err = "Exception\n"
             err += traceback.format_exc()
