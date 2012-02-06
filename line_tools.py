@@ -136,7 +136,7 @@ class LineToolsWindowHelper:
     ############ plugin core functions ############
     ###################### TOGGLE COMMENT ######################
     # Menu activate handlers
-    def toggle_comment(self, action, indented = False):
+    def toggle_comment(self, action, indented = None):
         document = self._window.get_active_document()
         if not document:
             return
@@ -163,7 +163,7 @@ class LineToolsWindowHelper:
                 for line_index in range(start_ln_index, end_ln_index + 1):
                     cursor = document.get_iter_at_mark(document.get_insert())
                     cursor.set_line(line_index)
-                    uniform_comment_action = self.toggle_comment_at_cursor(
+                    (indented, uniform_comment_action) = self.toggle_comment_at_cursor(
                         document, cursor, indented, force_comment = uniform_comment_action)
         except:
             err = "Exception\n"
@@ -184,6 +184,8 @@ class LineToolsWindowHelper:
             'js': '//',
             'c': '//',
             'cpp': '//',
+            'cc': '//',
+            'h': '//',
             'm': '%',
             'py': '#',
             'sql': '#',
@@ -210,7 +212,7 @@ class LineToolsWindowHelper:
         remove_comment = line[index:index + len(comment_code)] == comment_code
         if force_comment:
             if force_comment == 'REMOVE' and not remove_comment:
-                return force_comment
+                return (indented, force_comment)
             remove_comment = force_comment == 'REMOVE'
         if remove_comment:
             # remove comment
@@ -226,22 +228,25 @@ class LineToolsWindowHelper:
             end = cursor.copy()
             end.set_line_offset(index + len(comment_code) + extra)
             document.delete(cursor, end)
-            return 'REMOVE'
+            return (indented, 'REMOVE')
         else:
             # add comment
             added_space = " "
             # indented comment: comment right before code
-            if indented:
-                # check if line containts other than tabs and spaces
-                #if index < len(line):
-                cursor.set_line_offset(index)
+            if indented != None:
+                if type(indented) is bool:
+                    indent_index = indented = index
+                else:
+                    indent_index = min(indented, index)
+                cursor.set_line_offset(indent_index)
                 added_space = ''
+                    
             # don't add space before tab
             elif len(line) > 0:
                 if line[0] == ' ' or line[0] == "\t":
                     added_space = ""
             cursor.get_buffer().insert(cursor, comment_code + added_space)
-            return 'ADD'
+            return (indented, 'ADD')
 
     ###################### TOGGLE INDENTED COMMENT ######################
     def toggle_indented_comment(self, action):
