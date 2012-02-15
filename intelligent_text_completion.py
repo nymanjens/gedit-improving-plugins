@@ -86,7 +86,7 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         # get cursor
         cursor = doc.get_iter_at_mark(doc.get_insert())
         # get typed string
-        typed_string = unicode(event.string)
+        typed_string = unicode(event.string, 'UTF-8')
         # get previous char
         prev_char = None
         if not cursor.get_line_offset() == 0:
