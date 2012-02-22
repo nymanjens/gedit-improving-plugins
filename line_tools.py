@@ -345,7 +345,7 @@ class LineToolsWindowHelper:
             return
         try:
             # settings
-            NON_TEXT = [' ', '\n', '\r', '\t', '#', '"', "'", '/', '*', ';']
+            NON_TEXT = [' ', '\n', '\r', '\t']
             # get vars
             cursor = doc.get_iter_at_mark(doc.get_insert())
             start = cursor.copy()
