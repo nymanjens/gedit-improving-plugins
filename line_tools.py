@@ -345,7 +345,7 @@ class LineToolsWindowHelper:
             return
         try:
             # settings
-            NON_TEXT = [' ', '\n', '\r', '\t']
+            NON_TEXT = [' ', '\n', '\r', '\t', '+', '-', '>']
             # get vars
             cursor = doc.get_iter_at_mark(doc.get_insert())
             start = cursor.copy()
@@ -382,8 +382,6 @@ class LineToolsWindowHelper:
         if not doc:
             return
         try:
-            # settings
-            TEXT = ['_'] # a-zA-Z0-9
             # help functions
             def valid_text(start, end):
                 if not start or not end:
