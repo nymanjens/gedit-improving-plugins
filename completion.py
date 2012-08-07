@@ -35,6 +35,7 @@ from gi.repository import Gtk, GObject, Gedit
 import pango
 import re
 import traceback
+import os
 
 #class CompletionWindow(Gtk.Window):
 class CompletionWindow:
@@ -304,8 +305,15 @@ class CompletionPlugin(GObject.Object, Gedit.WindowActivatable):
     def _scan_document(self, doc):
         """Scan and save all words in document."""
 
+        # add filename to words
+        path = doc.get_uri_for_display()
+        fname = os.path.basename(path)
+        fname_without_ext = os.path.splitext(fname)[0]
+        fname_words = [fname_without_ext, fname]
+
         text = unicode(doc.get_text(doc.get_bounds()[0], doc.get_bounds()[1], False))
-        self._all_words[doc] = frozenset(self._re_non_alpha.split(text))
+        self._all_words[doc] = frozenset(self._re_non_alpha.split(text) + fname_words)
+
 
     def _show_completion_window(self, view, itr):
         """Show the completion window below the caret."""
