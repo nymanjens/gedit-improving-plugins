@@ -390,7 +390,7 @@ class LineToolsWindowHelper:
                     (start, end) = (end, start) # swap
                 text = doc.get_text(start, end, False)
                 for char in text:
-                    if not re.match("\w", char):
+                    if not re.match("[\w\$]", char):
                         return False
                 return True
             def increment(index, incr):
@@ -398,7 +398,7 @@ class LineToolsWindowHelper:
                 newindex.set_line_offset(index.get_line_offset() + incr)
                 return newindex
             def find_word_bound(index, step):
-                condition = lambda x: not index.get_line_offset() == 0 if step < 0 else lambda x: not x.ends_line()
+                condition = (lambda x: not index.get_line_offset() == 0) if step < 0 else (lambda x: not x.ends_line())
                 while condition(index):
                     newindex = increment(index, step)
                     # newindex contains word?
