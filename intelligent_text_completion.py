@@ -154,7 +154,7 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable):
             return False
         
         ################### auto-close brackets and quotes ###################
-        if options.closeBracketsAndQuotes:
+        if options.closeBracketsAndQuotes and prev_char != '\\':
             """ detect python comments """
             if typed_char == '"' and re.search('^[^"]*""$', preceding_line) and cursor.ends_line():
                 return self._insert_at_cursor(typed_char + ' ', ' """')
