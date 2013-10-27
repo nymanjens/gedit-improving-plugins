@@ -189,7 +189,7 @@ class CompletionPlugin(GObject.Object, Gedit.WindowActivatable):
 
         callback = lambda doc, x, self: self._scan_document(doc)
         handler_id = doc.connect("loaded", callback, self)
-        doc.set_data(self.__class__.__name__, (handler_id,))
+        doc.completion_plugin_id = (handler_id, )
 
     def _connect_view(self, view, window):
         """Connect to view's editing signals."""
@@ -198,7 +198,7 @@ class CompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         id_1 = view.connect("focus-out-event", callback, self)
         callback = self._on_view_key_press_event
         id_2 = view.connect("key-press-event", callback, window)
-        view.set_data(self.__class__.__name__, (id_1, id_2))
+        view.completion_plugin_id = (id_1, id_2)
 
     def _display_completions(self, view, event):
         """Find completions and display them in the completion window."""
@@ -275,13 +275,12 @@ class CompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         """Connect to signals of the document and view in tab."""
 
         self._update_fonts(tab.get_view())
-        name = self.__class__.__name__
         doc = tab.get_document()
-        handler_id = doc.get_data(name)
+        handler_id = getattr(doc, 'completion_plugin_id', None)
         if handler_id is None:
             self._connect_document(doc)
         view = tab.get_view()
-        handler_id = view.get_data(name)
+        handler_id = getattr(view, 'completion_plugin_id', None)
         if handler_id is None:
             self._connect_view(view, window)
 
@@ -342,6 +341,7 @@ class CompletionPlugin(GObject.Object, Gedit.WindowActivatable):
 
     def _update_fonts(self, view):
         """Update font descriptions and ascent metrics."""
+        return # disable this method because it doesn't work anymore in gedit 3.6.2
 
         context = view.get_pango_context()
         font_desc = context.get_font_description()
@@ -360,7 +360,7 @@ class CompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         id_1 = window.connect("tab-added", callback)
         callback = self._on_window_tab_removed
         id_2 = window.connect("tab-removed", callback)
-        window.set_data(self.__class__.__name__, (id_1, id_2))
+        window.completion_plugin_id = (id_1, id_2)
         for doc in window.get_documents():
             self._connect_document(doc)
             self._scan_document(doc)
@@ -385,11 +385,10 @@ class CompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         widgets = [window]
         widgets.extend(window.get_views())
         widgets.extend(window.get_documents())
-        name = self.__class__.__name__
         for widget in widgets:
-            for handler_id in widget.get_data(name):
+            for handler_id in getattr(widget, 'completion_plugin_id', []):
                 widget.disconnect(handler_id)
-            widget.set_data(name, None)
+            widget.completion_plugin_id = None
         self._terminate_completion()
         self._completion_windows.pop(window)
         for doc in window.get_documents():

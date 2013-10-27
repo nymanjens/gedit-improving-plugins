@@ -41,7 +41,7 @@ class TabsShortcutsWindowHelper:
         id_1 = window.connect("tab-added", callback)
         callback = self._on_window_tab_removed
         id_2 = window.connect("tab-removed", callback)
-        window.set_data(self.__class__.__name__, (id_1, id_2))
+        window.tabs_shortcuts_id = (id_1, id_2)
         views = window.get_views()
         for view in views:
             self._connect_view(view, window)
@@ -67,14 +67,13 @@ class TabsShortcutsWindowHelper:
         """Connect to view's editing signals."""
         callback = self._on_view_key_press_event
         id = view.connect("key-press-event", callback, window)
-        view.set_data(self.__class__.__name__, (id))
+        view.tabs_shortcuts_id = (id,)
 
     def _on_window_tab_added(self, window, tab):
         """Connect to signals of the document and view in tab."""
         name = self.__class__.__name__
         view = tab.get_view()
-        handler_id = view.get_data(name)
-        if handler_id is None:
+        if not hasattr(view, 'tabs_shortcuts_id'):
             self._connect_view(view, window)
 
     def _on_window_tab_removed(self, window, tab):
