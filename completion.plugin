@@ -1,9 +1,0 @@
-[Plugin]
-Loader=python
-Module=completion
-IAge=3
-Name=Word completion
-Description=Complete words with the tab key
-Authors=Osmo Salomaa <otsaloma@cc.hut.fi>, updated by Jens Nyman <nymanjens.nj@gmail.com>
-Copyright=Copyright (C) 2006-2008 Osmo Salomaa, 2011 Jens Nyman
-Website=http://code.google.com/p/gedit-improving-plugins
