@@ -10,10 +10,9 @@
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 # details.
 
-from gi.repository import Gtk, GObject, Gedit, PeasGtk
+from gi.repository import Gtk, GObject, Gedit, PeasGtk, Gio
 import re
 import traceback
-import gconf
 
 class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable, PeasGtk.Configurable):
     window = GObject.property(type=Gedit.Window)
@@ -84,7 +83,7 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable, P
         # get cursor
         cursor = doc.get_iter_at_mark(doc.get_insert())
         # get typed string
-        typed_string = unicode(event.string, 'UTF-8')
+        typed_string = event.string
         # get previous char
         prev_char = None
         if not cursor.get_line_offset() == 0:
@@ -357,17 +356,17 @@ class IntelligentTextCompletionOptions(object):
     _autoindentAfterFunctionOrListButton = None
 
     ## configuration client
-    _GCONF_SETTINGS_DIR = "/apps/gedit-3/plugins/intelligent_text_completion"
-    _gconf_client = None
+    _BASE_KEY = "apps.gedit-3.plugins.intelligent_text_completion"
+    _settings = None
 
     ## static singleton reference
     singleton = None
 
     def __init__(self):
-        # create gconf directory if not set yet
-        self._gconf_client = gconf.client_get_default()
-        if not self._gconf_client.dir_exists(self._GCONF_SETTINGS_DIR):
-            self._gconf_client.add_dir(self._GCONF_SETTINGS_DIR, gconf.CLIENT_PRELOAD_NONE)
+        # create settings directory if not set yet
+        #self._settings = Gio.Settings.new(self._BASE_KEY)
+        #if not self._gconf_client.dir_exists(self._GCONF_SETTINGS_DIR):
+        #    self._gconf_client.add_dir(self._GCONF_SETTINGS_DIR, gconf.CLIENT_PRELOAD_NONE)
 
         # load settings
         self.closeBracketsAndQuotes = self._load_setting("closeBracketsAndQuotes")
@@ -387,6 +386,12 @@ class IntelligentTextCompletionOptions(object):
         # make vertically stacking box
         vbox = Gtk.VBox()
         vbox.set_border_width(6)
+
+        # add warning
+        box = Gtk.HBox()
+        label = Gtk.Label("Warning: these options are not yet persistent")
+        box.pack_start(label, False, False, 6)
+        vbox.pack_start(box, False, True, 0)
 
         # add checkboxes
         self._closeBracketsAndQuotesButton = self._add_setting_checkbox(
@@ -434,11 +439,10 @@ class IntelligentTextCompletionOptions(object):
         self._save_setting("autoindentAfterFunctionOrList", self.autoindentAfterFunctionOrList)
 
     def _save_setting(self, setting_name, value):
-        self._gconf_client.set_bool("{}/{}".format(self._GCONF_SETTINGS_DIR, setting_name), value)
+        pass
+        #self._gconf_client.set_bool("{}/{}".format(self._GCONF_SETTINGS_DIR, setting_name), value)
 
     def _load_setting(self, setting_name):
-        try:
-            return self._gconf_client.get_bool("{}/{}".format(self._GCONF_SETTINGS_DIR, setting_name))
-        except Exception as e: # catch, just in case
-            print(e)
+        return True
+        #return self._gconf_client.get_bool("{}/{}".format(self._GCONF_SETTINGS_DIR, setting_name))
 
