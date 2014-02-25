@@ -1,5 +1,5 @@
 [Plugin]
-Loader=python
+Loader=python3
 Module=indent_keys
 IAge=3
 Name=Indent Key Plugin

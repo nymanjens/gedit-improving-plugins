@@ -1,5 +1,5 @@
 [Plugin]
-Loader=python
+Loader=python3
 Module=tabs_shortcuts
 IAge=3
 Name=Tabs Shortcuts

@@ -1,5 +1,5 @@
 [Plugin]
-Loader=python
+Loader=python3
 Module=intelligent_text_completion
 IAge=3
 Name=Intelligent Text Completion

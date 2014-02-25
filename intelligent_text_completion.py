@@ -439,6 +439,6 @@ class IntelligentTextCompletionOptions(object):
     def _load_setting(self, setting_name):
         try:
             return self._gconf_client.get_bool("{}/{}".format(self._GCONF_SETTINGS_DIR, setting_name))
-        except Exception, e: # catch, just in case
-            print e
+        except Exception as e: # catch, just in case
+            print(e)
 
